@@ -1,0 +1,30 @@
+#include <Servo.h>					
+
+int rad = 0;						
+Servo servo_1;						
+
+void setup()
+{
+  servo_1.attach(1, 500, 2500);		
+  pinMode(A0, INPUT);				
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
+  pinMode(A3, INPUT);
+}
+
+void loop()
+{										                        //45 rad 1024/45 = 22.75(5)
+  rad = (analogRead(A0) / 22.76);  		
+  servo_1.write(rad);				              	//+45 rad
+  
+  rad += (analogRead(A1) / 22.76);		      //+45 rad
+  servo_1.write(rad);
+  
+  rad += (analogRead(A2) / 22.76);		      //+45 rad
+  servo_1.write(rad);
+  
+  rad += (analogRead(A3) / 22.76);		      //+45 rad
+  servo_1.write(rad);
+  
+  delay(10); 
+}
