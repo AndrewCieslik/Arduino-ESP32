@@ -1,0 +1,131 @@
+#include <Keypad.h>										//keypad library
+#include <Adafruit_LiquidCrystal.h>						//lcd library
+
+Adafruit_LiquidCrystal lcd(0);
+
+const byte ROWS = 4;									//four rows
+const byte COLS = 4; 									//four columns
+String num1;
+String num2;
+int total = 0;
+double totalDouble =0;									//double for division
+
+char keys[ROWS][COLS] = {								//char table[][]
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {8, 7, 6, 5}; 						//connect to the row pinouts of the keypad
+byte colPins[COLS] = {4, 3, 2, 1};						//connect to the column pinouts of the keypad
+
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ); 
+//keypad build-in function using the nessesary variables
+
+void setup(){
+   printMenu();  										
+}
+  
+void loop(){
+  char key = keypad.getKey();							//get input from keypad to char 
+ 
+  switch(key) 
+  {  
+   case '0' ... '9': 									//get first number
+   lcd.setCursor(0,0);
+   num1 += key;
+   lcd.print(num1);
+   break;
+    
+   case '*':											//clear all data
+   lcd.clear(); 
+   lcd.setCursor(0,0); 
+   lcd.print("CLEAR");									
+   delay(500); 
+   num1 = "";
+   num2 = "";
+   total = 0; 
+   totalDouble = 0; 
+   lcd.clear(); 
+   break; 
+    
+   case 'A':											//addition +
+   lcd.setCursor(0,1);
+   lcd.print("+"); 
+   num2 = num(); 
+   lcd.setCursor(1,1);
+   total =  num1.toInt() + num2.toInt();
+   lcd.print(num2 + " = " + total);
+   break; 
+      
+   case 'C':											//multiplication *
+   lcd.setCursor(0,1);
+   lcd.print("*"); 
+   num2 = num(); 
+   lcd.setCursor(1,1);
+   total =  num1.toInt() * num2.toInt();
+   lcd.print(num2 + " = " + total);
+   break;
+    
+   case 'B':											//substraction -
+   lcd.setCursor(0,1);
+   lcd.print("-"); 
+   num2 = num(); 
+   lcd.setCursor(1,1);
+   total =  num1.toInt() - num2.toInt();
+   lcd.print(num2 + " = " + total);
+    
+   case 'D':											//division /
+   lcd.setCursor(0,1);
+   lcd.print("/"); 
+   num2 = num(); 
+   lcd.setCursor(1,1);
+   if(num2.toInt() != 0)
+   {
+     double totalDouble =  num1.toDouble() / num2.toDouble();
+     lcd.print(num2 + " = " + totalDouble);  
+   }else{    
+     lcd.setCursor(0,0);
+   	 lcd.print("Divisor can't   ");
+     lcd.setCursor(0,1);
+     lcd.print("be zero. *-exit ");
+   }
+   break;  
+  }
+}
+
+String num()											//get second number function
+{
+String num = "";
+bool flag = true;
+	while(flag == true)											
+	{
+		char key = keypad.getKey();
+      	if(key >= '0' && key <= '9')
+      	{
+         	num += key;;								//num = num + key char
+         	lcd.setCursor(1,1);
+         	lcd.print(num);
+      	}  
+      	if(key == '#')									//go out from the function
+        	flag = false; 										//return after C as COUNT;
+	}
+return num; 
+}
+
+void printMenu()										//show menu function
+{
+lcd.begin(16, 2);
+   lcd.setCursor(0,0);									//set printing from the beginning on LCD
+   lcd.print("#-Count A-Add B-");						//String printing
+   lcd.setCursor(0,1);									//set cursor on second row	
+   lcd.print("Sub C-mult D-Div");
+   delay(1500);					
+   lcd.clear();
+   lcd.setCursor(0,0);	
+   lcd.print("*-clear data");
+   delay(500);											//delay 1 second
+   lcd.clear();											//clear the screen
+}
+
+//end
