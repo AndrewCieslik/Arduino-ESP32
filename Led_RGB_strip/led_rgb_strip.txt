@@ -1,0 +1,101 @@
+#include <Adafruit_NeoPixel.h>
+#define PIN 2										 // input pin Neopixel is attached to
+#define NUMPIXELS      12 				  			 // number of neopixels in strip
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+	int redColor = 0;
+	int greenColor = 0;
+	int blueColor = 0;
+	int ledNumber = 0;
+
+void setup() {
+  
+  	pixels.begin();									 // Initialize the NeoPixel library.
+    pinMode(A0, INPUT);								 //analog inputs
+    pinMode(A1, INPUT);
+}
+
+void loop() {
+  
+  for (int i=0; i < NUMPIXELS; i++) {				//run through all leds
+    
+    int value = map(analogRead(A1), 0, 1023, 0,9);	//mapping potentiometer range 0-1023 to 0-9 range
+    setColor(value);								//set color by value in loop step
+
+    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
+    pixels.setPixelColor(i, pixels.Color(redColor, greenColor, blueColor));
+    pixels.show();								    // This sends the updated pixel color to the hardware.
+    delay(analogRead(A0));							//delay values from analog read (reversed) in ms
+	pixels.clear();									//clear led settings 
+    pixels.show();									//and run after changes	(led off)
+
+  }
+  
+}  
+
+void setColor(int value){
+  
+  switch(value)
+  {  
+    case 0: 				//red
+	redColor = 255;
+	greenColor = 0;
+ 	blueColor = 0;
+    break;
+    
+  	case 1:					//yellow
+	redColor = 255; 	
+	greenColor = 255;
+ 	blueColor = 0;
+    break;
+    
+    case 2:					//lightblue
+    redColor = 0; 		
+	greenColor = 255;
+ 	blueColor = 255;
+    break;
+    
+    case 3:					//white
+    redColor = 255; 		
+	greenColor = 255;
+ 	blueColor = 254;
+    break;
+    
+    case 4:					//green
+    redColor = 0; 		
+	greenColor = 192;
+ 	blueColor = 0;
+    break;
+    
+    case 5:					//orange
+    redColor = 255; 		
+	greenColor = 160;
+ 	blueColor = 15;
+    break;
+    
+    case 6:					//brown
+    redColor = 160; 		
+	greenColor = 128;
+ 	blueColor = 96;
+    break;
+    
+    case 7:					//pink
+    redColor = 255; 		
+	greenColor = 96;
+ 	blueColor = 208;
+    break;
+    
+    case 8:					//blue/violet
+    redColor = 0; 		
+	greenColor = 0;
+ 	blueColor = 255;
+    break;
+    
+    case 9:					//light gray
+    redColor = 100; 		
+	greenColor = 100;
+ 	blueColor = 100;
+    break; 
+  }
+}
