@@ -1,0 +1,3 @@
+3 tables of colors Red Blue Green from Camera from ESP32
+Count Islands of each color
+Find the biggest Island
