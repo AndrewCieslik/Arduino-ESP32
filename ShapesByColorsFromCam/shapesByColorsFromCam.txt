@@ -3,7 +3,17 @@
 Count Islands of each color
 Find the biggest Island
 */
-
+/*!!! 
+in platform.ino:
+[env:esp32cam]
+platform = espressif32
+board = esp32cam
+framework = arduino
+monitor_rts = 0
+monitor_dtr = 0
+monitor_speed = 115200
+lib_deps = ottowinter/ESPAsyncWebServer-esphome@^3.0.0
+*/
 
 #include <WiFiClient.h>
 #include <WiFi.h>
@@ -65,7 +75,7 @@ int offset=20;
 #include "camera_pins.h"
 
 const char* ssid = "Q6_2862";
-const char* password = "1278MartaStyle+x12";
+const char* password = "********";
 
 AsyncWebServer server(80);  //uzycie serwera asynchronicznego http na porcie 80
 
