@@ -3,7 +3,7 @@
 Count Islands of each color
 Find the biggest Island
 */
-/*!!! 
+/*
 in platform.ino:
 [env:esp32cam]
 platform = espressif32
@@ -24,7 +24,6 @@ lib_deps = ottowinter/ESPAsyncWebServer-esphome@^3.0.0
 #include <FS.h>
 #include "ESPAsyncWebServer.h"
 
-//for find the islands in table
 #include <cstdint>
 #include <iostream>   
 #include <vector>
@@ -42,9 +41,6 @@ using namespace std;
 
 int max_island = 0;
 
-// Below arrays detail all eight possible movements from a cell
-// (top, right, bottom, left, and four diagonal moves)
-//sprawdzanie kratek dookola kratki - dla algorytmu BFS
 int row[] = { -1, -1, -1, 0, 1, 0, 1, 1 };
 int col[] = { -1, 1, 0, -1, -1, 1, 0, 1 };
 
@@ -58,7 +54,7 @@ const char* PARAM_INPUT_2 = "offset";
 String inputMessage;
 int prog=128;
 uint16_t rgb_frame[DEST_HEIGHT][DEST_WIDTH][3] = { 0 };
-uint16_t frame[DEST_HEIGHT][DEST_WIDTH] = { 0 };          //ramka dodana dla analizy kolorow
+uint16_t frame[DEST_HEIGHT][DEST_WIDTH] = { 0 };          
 
 uint16_t redFrame[DEST_HEIGHT][DEST_WIDTH] = { 0 };
 uint16_t greenFrame[DEST_HEIGHT][DEST_WIDTH] = { 0 };
@@ -70,16 +66,15 @@ int offset=20;
 #include <SD.h>
 #include <SPIFFS.h>
 #define DIODA 33
-#define CAMERA_MODEL_AI_THINKER     //wybor modelu kamery
+#define CAMERA_MODEL_AI_THINKER     
 
 #include "camera_pins.h"
 
 const char* ssid = "Q6_2862";
 const char* password = "********";
 
-AsyncWebServer server(80);  //uzycie serwera asynchronicznego http na porcie 80
+AsyncWebServer server(80);  
 
-//prosta strona www z miejscem na obraz z kamery
 const char index_html[] PROGMEM = R"rawliteral(   
 <!DOCTYPE HTML><html>
 <head>
@@ -130,7 +125,7 @@ void grab_image(uint8_t *source, int len) {
     }
    }
   
- void fotka()   //funkcja do wykonania zdjecia 
+ void fotka()   
  {
 
     camera_fb_t * fb = NULL;
@@ -170,7 +165,7 @@ void grab_image(uint8_t *source, int len) {
     esp_camera_fb_return(fb);
  }
 
- void generateFramesByColor(){            //wypełnij 3 tablice wartościami dla odpowiednich kolorów
+ void generateFramesByColor(){            
   for (int y=0;y<DEST_HEIGHT;y++)
        {
          for (int x=0;x<DEST_WIDTH;x++) 
@@ -186,11 +181,8 @@ void grab_image(uint8_t *source, int len) {
                 if(frame[y][x] == 'N')
                 {
                   blueFrame[y][x] = 1;
-                } 
-                //Serial.print(redFrame[y][x]);
-            
+                }       
           }
-          //Serial.printf("\n");
        }
  }
  
@@ -201,38 +193,26 @@ bool isSafe(vector<vector<int>> const &mat, int x, int y,
         mat[x][y] && !processed[x][y];
 }
  
-void BFS(vector<vector<int>> const &mat, vector<vector<bool>> &processed, int i, int j)       //zastosowano algorytm BFS (przeszukiwanie wszerz) 
-{
+void BFS(vector<vector<int>> const &mat, vector<vector<bool>> &processed, int i, int j)       
     int size_of_island = 1;
     
-    // create an empty queue and enqueue source node
     queue<pair<int, int>> q;
     q.push(make_pair(i, j));
  
-    // mark source node as processed
     processed[i][j] = true;
- 
-    // loop till queue is empty
-    
+     
     while (!q.empty())
     {
-        // dequeue front node and process it
         int x = q.front().first;
         int y = q.front().second;
         q.pop();
- 
-        // check for all eight possible movements from the current cell
-        // and enqueue each valid movement
         
         int b =0;
         for (int k = 0; k < 8; k++)
         {
-            // skip if the location is invalid, or already
-            // processed, or is 0
             if (isSafe(mat, x + row[k], y + col[k], processed))
             {
                 size_of_island++;
-                // mark it as processed and enqueue it
                 processed[x + row[k]][y + col[k]] = 1;
                 q.push(make_pair(x + row[k], y + col[k]));
           
@@ -243,15 +223,14 @@ void BFS(vector<vector<int>> const &mat, vector<vector<bool>> &processed, int i,
     Serial.print(size_of_island);
     Serial.println("");
 
-    if(size_of_island > max_island)     //jak wyspa jest wieksza niż obecnie najwieksza to zastap
+    if(size_of_island > max_island)    
     {
       max_island = size_of_island;
     }
 }
  
-int countIslands(vector<vector<int>> const &mat)      //liczenie ilości wysp dla tablicy wektorowej 2D
+int countIslands(vector<vector<int>> const &mat)  
 {
-    // base case
     if (mat.size() == 0) {
         return 0;
     }
@@ -260,7 +239,6 @@ int countIslands(vector<vector<int>> const &mat)      //liczenie ilości wysp dl
     int M = mat.size();
     int N = mat[0].size();
  
-    // stores if a cell is processed or not
     vector<vector<bool>> processed(M, vector<bool>(N));
  
     int island = 0;
@@ -268,7 +246,6 @@ int countIslands(vector<vector<int>> const &mat)      //liczenie ilości wysp dl
     {
         for (int j = 0; j < N; j++)
         {
-            // start BFS from each unprocessed node and increment island count
             if (mat[i][j] && processed[i][j] == 0)
             {
                 BFS(mat, processed, i, j);
@@ -289,14 +266,12 @@ vector<vector<int> > vec;
 vector<int> vectorRows;
     for (int y=0;y<DEST_HEIGHT;y++)
     {
-        //jeden rząd z tablicy redFrame do vectora v1
         for (int x=0;x<DEST_WIDTH;x++) 
         {
-          vectorRows.push_back(table[y][x]);       //np. {0,0,1,1,1,1,0,0} dla wiersza y = 0, wrzuc do vec, potem  dla wiersza y = 1 , 2..
+          vectorRows.push_back(table[y][x]);      
         }
-        //vector rzędu do vectora 2D
         vec.push_back(vectorRows); 
-        vectorRows = {}; //wyczyść wiersz po wpisaniu
+        vectorRows = {}; 
     }     
 
     for (int i = 0; i < vec.size(); i++)
@@ -308,7 +283,7 @@ vector<int> vectorRows;
     cout << "Number of islands: " << countIslands(vec) << endl;
 }
 
-void findMaxIsland()                      //wyświetl najwiekszy rozmiar wysp z wszystkich wysp i skasuj wartość dla przyszłych przejść pętli loop()
+void findMaxIsland()                      
 {
     Serial.print("Max size of island: ");
     Serial.print(max_island);
@@ -320,7 +295,7 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println();
   camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0; //definicja portow, do ktorych podlaczona jest kamera
+  config.ledc_channel = LEDC_CHANNEL_0; 
   config.ledc_timer = LEDC_TIMER_0;
   config.pin_d0 = Y2_GPIO_NUM;
   config.pin_d1 = Y3_GPIO_NUM;
@@ -343,9 +318,9 @@ void setup() {
   config.frame_size = FRAME_SIZE;
   config.fb_count = 1;
   
-  esp_err_t err = esp_camera_init(&config);   //inicjacja kamery
+  esp_err_t err = esp_camera_init(&config);   
   if (err != ESP_OK) {
-    Serial.printf("B��d inicjacji kamery numer: 0x%x", err);
+    Serial.printf("Blad inicjacji kamery numer: 0x%x", err);
     return;
   }
   Serial.printf("kamera ok");
@@ -361,7 +336,7 @@ void setup() {
   Serial.println("");
   Serial.println("Po��czono z WIFI");
 
-  Serial.print("Kamera gotowa wejd� na adres: 'http://");
+  Serial.print("Kamera gotowa wejdz na adres: 'http://");
   Serial.println(WiFi.localIP());
 
 server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -376,7 +351,6 @@ server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
   server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
 
     String inputParam;
-    // GET input1 value on <ESP_IP>/get?input1=<inputMessage>
     if (request->hasParam(PARAM_INPUT_1)) {
       inputMessage = request->getParam(PARAM_INPUT_1)->value();
       inputParam = PARAM_INPUT_1;
